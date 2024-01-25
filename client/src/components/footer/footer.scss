@@ -1,0 +1,10 @@
+@import "../../styles/variables.scss";
+@import "../../styles/responsive.scss";
+
+
+.footer {
+    background-color: $dark-bg;
+    color: $main-color;
+    padding-block: 1rem;
+    text-align: center;
+}

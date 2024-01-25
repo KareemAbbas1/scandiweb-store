@@ -1,0 +1,27 @@
+@import "../../styles/variables.scss";
+@import "../../styles/responsive.scss";
+
+.products-list {
+    width: 100%;
+    height: 100%;
+    padding: 1.5rem;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 2.8rem;
+
+    // Responsiveness
+    @include sm {
+        padding-inline: 1rem;
+        flex-flow: column nowrap;
+    }
+
+    @include lg {
+        gap: 2rem;
+    }
+
+    @include xxl {
+        padding-inline: 10vw;
+    }
+}

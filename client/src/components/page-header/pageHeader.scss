@@ -1,0 +1,70 @@
+@import "../../styles/variables.scss";
+@import "../../styles/responsive.scss";
+
+
+.header {
+    background-color: $dark-bg;
+    color: $main-color;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    // Responsiveness
+    @include sm {
+        padding-inline: 1rem;
+    }
+    @include xxl {
+        padding-inline: 10vw;
+    }
+
+    h1 {
+        @include sm {
+            font-size: 22px;
+        }
+    }
+
+    .buttons-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+
+        // Responsiveness
+        @include sm {
+            gap: 5px;
+        }
+
+        a,button {
+            background-color: $main-bg;
+            color: $dark-color;
+            border: 1px solid $dark-color;
+            height: 2rem;
+            padding-inline: 0.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 300ms ease-in-out;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+
+            // Responsiveness
+            @include sm {
+                font-size: 12px;
+            }
+
+            @include md {
+                font-size: 1rem;
+            }
+        }
+
+        a:hover, button:hover {
+            background-color: transparent;
+            border-color: $main-color;
+            color: $main-color;
+        }
+    }
+}
