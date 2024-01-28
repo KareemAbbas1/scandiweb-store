@@ -26,18 +26,19 @@ try {
     ) {
         throw new Exception("Invalid request format");
     }
+    
+    if(strlen($requestData->sku) > 11 || strlen($requestData->sku) < 5) {
+        throw new Exception("skuErr:SKU must be more than 4 and less than 11 characters.");
+    }
 
     if(strlen($requestData->name) > 255 || strlen($requestData->name) < 4) {
         throw new Exception("nameErr:Name must be more than 3 and less than 255 characters.");
     }
 
-    if(strlen($requestData->sku) > 11 || strlen($requestData->sku) < 5) {
-        throw new Exception("skuErr:SKU must be more than 4 and less than 11 characters.");
-    }
-
     if($requestData->price == 0 || strlen($requestData->price) > 6) {
         throw new Exception("priceErr:Please enter a valid price.");
     }
+    
 
     // Extract data from the request
     $sku = $requestData->sku;
@@ -47,14 +48,18 @@ try {
 
     // Validate product type
     if (!in_array($type, ['DVD', 'Book', 'Furniture'])) {
-        throw new Exception("Unsupported product type");
+        throw new Exception("typeError:Please choose a valid product type");
     }
 
     // Dynamically create the product instance based on the provided type
     $className = 'Product' . ucfirst($type); // ucfirst() makes the first letter uppercase
 
     if (!class_exists($className)) {
-        throw new Exception("Unsupported product type");
+        throw new Exception("typeError:Please choose a valid product type");
+    }
+
+    if(count(get_object_vars($requestData->type_specific_data)) < 1) {
+        throw new Exception("descriptionErr:Please provide product description.");
     }
 
     // Convert type-specific data to an associative array

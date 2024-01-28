@@ -51,30 +51,31 @@ const AddProduct = () => {
     heightError: null,
     widthError: null,
     lengthError: null,
+    typeError: null,
+    descriptionErr: null
   });
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Handle client side validation
+    if (newProduct.price < 1) {
+      setErrors((prev) => ({ ...prev, priceError: "Please enter a valid price." }))
+    }
     if (newProduct.type_specific_data.size && (newProduct.type_specific_data.size < 0.1 || newProduct.type_specific_data.size.length > 5)) {
-      setErrors(() => ({ sizeError: "Please enter a valid size." }));
+      setErrors((prev) => ({ ...prev, sizeError: "Please enter a valid size." }));
       return;
-    }
-    if (newProduct.type_specific_data.weight && (newProduct.type_specific_data.weight < 0.1 || newProduct.type_specific_data.weight.length > 5)) {
-      setErrors(() => ({ weightError: "Please enter a valid weight." }));
+    } else if (newProduct.type_specific_data.weight && (newProduct.type_specific_data.weight < 0.1 || newProduct.type_specific_data.weight.length > 5)) {
+      setErrors((prev) => ({ ...prev, weightError: "Please enter a valid weight." }));
       return;
-    }
-    if (newProduct.type_specific_data.height && (newProduct.type_specific_data.height < 0.1 || newProduct.type_specific_data.height.length > 4)) {
-      setErrors(() => ({ heightError: "Please enter a valid height." }));
+    } else if (newProduct.type_specific_data.height && (newProduct.type_specific_data.height < 0.1 || newProduct.type_specific_data.height.length > 4)) {
+      setErrors((prev) => ({ ...prev, heightError: "Please enter a valid height." }));
       return;
-    }
-    if (newProduct.type_specific_data.width && (newProduct.type_specific_data.width < 0.1 || newProduct.type_specific_data.width.length > 4)) {
-      setErrors(() => ({ widthError: "Please enter a valid width." }));
+    } else if (newProduct.type_specific_data.width && (newProduct.type_specific_data.width < 0.1 || newProduct.type_specific_data.width.length > 4)) {
+      setErrors((prev) => ({ ...prev, widthError: "Please enter a valid width." }));
       return;
-    }
-    if (newProduct.type_specific_data.length && (newProduct.type_specific_data.length < 0.1 || newProduct.type_specific_data.length.length > 4)) {
-      setErrors(() => ({ lengthError: "Please enter a valid length." }));
+    } else if (newProduct.type_specific_data.length && (newProduct.type_specific_data.length < 0.1 || newProduct.type_specific_data.length.length > 4)) {
+      setErrors((prev) => ({ ...prev, lengthError: "Please enter a valid length." }));
       return;
     }
 
@@ -88,17 +89,21 @@ const AddProduct = () => {
         navigate("/");
       } else {
         response.json()
-          // Handle database/server validation errors
+          // Handle database/server-side validation errors
           .then((result) =>
             result.error.split(":")[2]// Duplicate SKU
-              ? setErrors(() => ({ dbError: result.error.split(":")[2].substring(6) }))
-              : result.error.startsWith("nameErr")
-                ? setErrors(() => ({ nameError: result.error.split(":")[1] }))
-                : result.error.startsWith("skuErr")
-                  ? setErrors(() => ({ skuError: result.error.split(":")[1] }))
+              ? setErrors((prev) => ({ ...prev, dbError: result.error.split(":")[2].substring(6) }))
+              : result.error.startsWith("skuErr")
+                ? setErrors((prev) => ({ ...prev, skuError: result.error.split(":")[1] }))
+                : result.error.startsWith("nameErr")
+                  ? setErrors((prev) => ({ ...prev, nameError: result.error.split(":")[1] }))
                   : result.error.startsWith("priceErr")
-                    ? setErrors(() => ({ priceError: result.error.split(":")[1] }))
-                    : ""
+                    ? setErrors((prev) => ({ ...prev, priceError: result.error.split(":")[1] }))
+                    : result.error.startsWith("typeError")
+                      ? setErrors((prev) => ({ ...prev, typeError: result.error.split(":")[1] }))
+                      : result.error.startsWith("descriptionErr")
+                        ? setErrors((prev) => ({ ...prev, descriptionErr: result.error.split(":")[1] }))
+                        : ""
           )
       }
 
@@ -135,7 +140,11 @@ const AddProduct = () => {
             type='text'
             name='sku'
             required
-            onChange={(e) => handleInputChange(e)}
+            onChange={(e) => {
+              handleInputChange(e);
+              setErrors((prev) => ({ ...prev, skuError: null }));
+              setErrors((prev) => ({ ...prev, dbError: null }));
+            }}
           />
           {
             errors.dbError &&
@@ -155,7 +164,10 @@ const AddProduct = () => {
             type='text'
             name='name'
             required
-            onChange={(e) => handleInputChange(e)}
+            onChange={(e) => {
+              handleInputChange(e);
+              setErrors((prev) => ({ ...prev, nameError: null }));
+            }}
           />
           {
             errors.nameError &&
@@ -172,7 +184,10 @@ const AddProduct = () => {
             step=".01"
             name='price'
             required
-            onChange={(e) => handleInputChange(e)}
+            onChange={(e) => {
+              handleInputChange(e);
+              setErrors((prev) => ({ ...prev, priceError: null }))
+            }}
           />
           {
             errors.priceError &&
@@ -192,6 +207,7 @@ const AddProduct = () => {
                 (e) => {
                   handleInputChange(e);
                   setNewProduct(prev => ({ ...prev, type_specific_data: {} })); // reset the type_specific_data to update the type specific details
+                  setErrors((prev) => ({ ...prev, typeError: null }))
                 }
               }
               required
@@ -201,7 +217,10 @@ const AddProduct = () => {
               <option value="Book" id='Book'>Book</option>
               <option value="Furniture" id='Furniture'>Furniture</option>
             </select>
-
+            {
+              errors.typeError &&
+              <span className='error'>{errors.typeError}</span>
+            }
             {
               newProduct.type &&
               <p style={{ width: '90%' }}>
@@ -228,6 +247,10 @@ const AddProduct = () => {
               !newProduct.type &&
               <p className='product-description-p'>Please choose a product type to show it's details.</p>
             }
+            {
+              errors.descriptionErr &&
+              <span className='error'>{errors.descriptionErr}</span>
+            }
 
             {
               newProduct.type === "DVD" && (
@@ -240,7 +263,11 @@ const AddProduct = () => {
                     step=".01"
                     name='size'
                     id='size'
-                    onChange={(e) => handleInputChange(e)}
+                    onChange={(e) => {
+                      handleInputChange(e);
+                      setErrors((prev) => ({ ...prev, sizeError: null }));
+                      setErrors((prev) => ({ ...prev, descriptionErr: null }));
+                    }}
                     required
                   />
                   {
@@ -262,7 +289,11 @@ const AddProduct = () => {
                     step=".01"
                     name='weight'
                     id='weight'
-                    onChange={(e) => handleInputChange(e)}
+                    onChange={(e) => {
+                      handleInputChange(e);
+                      setErrors((prev) => ({ ...prev, weightError: null }));
+                      setErrors((prev) => ({ ...prev, descriptionErr: null }));
+                    }}
                     required
                   />
                   {
@@ -283,7 +314,11 @@ const AddProduct = () => {
                     step=".01"
                     name='height'
                     id='height'
-                    onChange={(e) => handleInputChange(e)}
+                    onChange={(e) => {
+                      handleInputChange(e);
+                      setErrors((prev) => ({ ...prev, heightError: null }));
+                      setErrors((prev) => ({ ...prev, descriptionErr: null }));
+                    }}
                     required
                   />
                   {
@@ -298,7 +333,11 @@ const AddProduct = () => {
                     step=".01"
                     name='width'
                     id='width'
-                    onChange={(e) => handleInputChange(e)}
+                    onChange={(e) => {
+                      handleInputChange(e);
+                      setErrors((prev) => ({ ...prev, widthError: null }));
+                      setErrors((prev) => ({ ...prev, descriptionErr: null }));
+                    }}
                     required
                   />
                   {
@@ -313,7 +352,11 @@ const AddProduct = () => {
                     step=".01"
                     name='length'
                     id='length'
-                    onChange={(e) => handleInputChange(e)}
+                    onChange={(e) => {
+                      handleInputChange(e);
+                      setErrors((prev) => ({ ...prev, lengthError: null }));
+                      setErrors((prev) => ({ ...prev, descriptionErr: null }));
+                    }}
                     required
                   />
                   {
